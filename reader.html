@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>阅读 · 剧本杀阅读器</title>
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/reader.css">
+</head>
+<body>
+  <div class="reader-page page-enter">
+
+    <!-- 阅读进度条 -->
+    <div class="read-progress" id="readProgress"></div>
+
+    <!-- 顶栏 -->
+    <div class="top-bar" id="topBar">
+      <button class="btn-icon" onclick="goBack()" title="返回">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <span class="title" id="topTitle">阅读器</span>
+      <button class="btn-icon" onclick="openPanel('settings')" title="设置">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+
+    <!-- 章节切换器 -->
+    <div class="chapter-switcher" id="chapterSwitcher">
+      <button class="btn-icon" id="prevChapterBtn" onclick="prevChapter()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <select id="chapterSelect" onchange="switchChapter(this.value)"></select>
+      <button class="btn-icon" id="nextChapterBtn" onclick="nextChapter()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <!-- 主阅读内容 -->
+    <div class="reader-content" id="readerContent">
+      <div class="text-center" style="padding:3rem 1rem;color:var(--text-muted)">
+        请先选择角色和章节开始阅读。
+      </div>
+    </div>
+
+    <!-- 底部工具栏 -->
+    <div class="bottom-bar">
+      <button class="bar-btn" onclick="openPanel('tasks')" id="btnTasks">
+        <span class="bar-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg>
+        </span>任务
+      </button>
+      <button class="bar-btn" onclick="openPanel('clues')" id="btnClues">
+        <span class="bar-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        </span>线索
+      </button>
+      <button class="bar-btn" onclick="openPanel('favorites')" id="btnFavs">
+        <span class="bar-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </span>收藏
+      </button>
+      <button class="bar-btn" onclick="openPanel('search')" id="btnSearch">
+        <span class="bar-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        </span>搜索
+      </button>
+      <button class="bar-btn" onclick="openPanel('special')" id="btnSpecial">
+        <span class="bar-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>特殊
+      </button>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay" onclick="closeAllPanels()"></div>
+
+    <!-- ====== 侧滑面板 ====== -->
+
+    <!-- 任务面板 -->
+    <div class="slide-panel" id="panelTasks">
+      <div class="panel-header">
+        <span class="panel-title">任务</span>
+        <button class="btn-icon" onclick="closeAllPanels()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="panel-body" id="taskList">
+        <p style="color:var(--text-muted);text-align:center;padding:2rem 0">点击任务可标记完成。</p>
+      </div>
+    </div>
+
+    <!-- 线索面板 -->
+    <div class="slide-panel" id="panelClues">
+      <div class="panel-header">
+        <span class="panel-title">线索栏</span>
+        <button class="btn-icon" onclick="closeAllPanels()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <!-- 搜证轮次选择 -->
+      <div class="evidence-round-tabs" id="evidenceRoundTabs"></div>
+      <div class="panel-body" id="clueList">
+        <p style="color:var(--text-muted);text-align:center;padding:2rem 0">暂无已搜集的线索。</p>
+      </div>
+    </div>
+
+    <!-- 收藏/高亮面板 -->
+    <div class="slide-panel" id="panelFavorites">
+      <div class="panel-header">
+        <span class="panel-title">收藏 &amp; 高亮</span>
+        <button class="btn-icon" onclick="closeAllPanels()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="panel-body" id="favList">
+        <p style="color:var(--text-muted);text-align:center;padding:2rem 0">暂无收藏。</p>
+      </div>
+    </div>
+
+    <!-- 搜索面板 -->
+    <div class="slide-panel" id="panelSearch">
+      <div class="panel-header">
+        <span class="panel-title">全文搜索</span>
+        <button class="btn-icon" onclick="closeAllPanels()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="panel-body">
+        <div class="search-input-wrap">
+          <input type="text" id="searchInput" placeholder="输入关键词即时搜索..." oninput="doSearch()">
+        </div>
+        <div id="searchResults">
+          <p style="color:var(--text-muted);text-align:center;padding:1rem 0">输入关键词搜索所有剧本内容。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 设置面板 -->
+    <div class="slide-panel" id="panelSettings">
+      <div class="panel-header">
+        <span class="panel-title">阅读设置</span>
+        <button class="btn-icon" onclick="closeAllPanels()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="panel-body">
+        <div class="setting-row">
+          <span class="setting-label">背景主题</span>
+          <div class="theme-options">
+            <span class="theme-dot default active" onclick="setTheme('default')" title="默认"></span>
+            <span class="theme-dot white" onclick="setTheme('white')" title="纯白"></span>
+            <span class="theme-dot dawn" onclick="setTheme('dawn')" title="破晓"></span>
+            <span class="theme-dot green" onclick="setTheme('green')" title="护眼绿"></span>
+            <span class="theme-dot yellow" onclick="setTheme('yellow')" title="护眼黄"></span>
+            <span class="theme-dot celestial" onclick="setTheme('celestial')" title="神圣"></span>
+            <span class="theme-dot wasteland" onclick="setTheme('wasteland')" title="废土"></span>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">字体大小</span>
+          <div class="font-options">
+            <button class="font-btn" onclick="setFontSize('small')">小</button>
+            <button class="font-btn active" onclick="setFontSize('medium')">中</button>
+            <button class="font-btn" onclick="setFontSize('large')">大</button>
+            <button class="font-btn" onclick="setFontSize('xlarge')">特大</button>
+          </div>
+        </div>
+        <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:0.5rem">
+          <button class="btn btn-danger btn-sm" onclick="resetAllData()">重置所有数据</button>
+          <span style="font-size:0.72rem;color:var(--text-muted)">阅读进度、收藏、高亮、线索全部清除</span>
+        </div>
+        <div class="setting-row" style="justify-content:flex-start">
+          <span style="font-size:0.72rem;color:var(--text-muted)">v<span id="versionDisplay"></span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 特殊章节面板 -->
+    <div class="slide-panel" id="panelSpecial">
+      <div class="panel-header">
+        <span class="panel-title">特殊章节</span>
+        <button class="btn-icon" onclick="closeAllPanels()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="panel-body" id="specialPanelBody">
+        <div class="special-unlock" id="specialUnlock">
+          <p>输入密码解锁<strong>特殊章节</strong></p>
+          <p class="hint">密码提示：特殊之日</p>
+          <input type="text" id="specialCodeInput" placeholder="请输入密码" maxlength="20">
+          <button class="btn btn-primary" onclick="unlockSpecial()">解锁</button>
+          <p id="specialMsg" style="margin-top:0.5rem;font-size:0.82rem;color:var(--text-muted)"></p>
+        </div>
+        <div class="special-options hidden" id="specialOptions">
+          <p class="special-options-title">已解锁内容</p>
+          <div class="special-option-list" id="specialOptionList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 信件阅读浮层 -->
+    <div class="letter-overlay" id="letterOverlay">
+      <button class="letter-overlay-close" onclick="closeLetter()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <span>关闭</span>
+      </button>
+      <div class="letter-paper" id="letterPaper"></div>
+    </div>
+
+    <!-- 选中文字收藏确认弹窗 -->
+    <div class="overlay" id="favOverlay" onclick="closeFavModal()"></div>
+    <div class="char-modal hidden" id="favModal">
+      <div class="modal-content" style="text-align:center">
+        <div style="font-size:1rem;font-weight:600;margin-bottom:0.6rem;color:var(--text-primary)">收藏这段文字？</div>
+        <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.2rem;max-height:80px;overflow:hidden;text-overflow:ellipsis" id="favModalText"></div>
+        <div class="modal-actions" style="justify-content:center">
+          <button class="btn btn-ghost" onclick="closeFavModal()">取消</button>
+          <button class="btn btn-primary" onclick="confirmFavorite()">收藏</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 选中文字工具栏 -->
+    <div class="selection-toolbar" id="selectionToolbar">
+      <button class="sel-btn-highlight" onclick="highlightSelected()">高亮</button>
+      <button class="sel-btn-favorite" onclick="favoriteSelected()">收藏</button>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 地图灯箱 -->
+    <div class="map-lightbox" id="mapLightbox" onclick="closeMapLightbox()">
+      <button class="map-lightbox-close" onclick="closeMapLightbox()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <img src="data/assets/案件地图.jpg" alt="冰库内部行动路线图" class="map-lightbox-img" id="mapLightboxImg" onclick="event.stopPropagation()">
+    </div>
+  </div>
+
+  <!-- JS 模块 -->
+  <script src="js/debug.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/favorites.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/clues.js"></script>
+  <script src="js/tasks.js"></script>
+
+  <!-- 数据层 -->
+  <script src="data/index.js"></script>
+  <script src="data/characters.js"></script>
+  <script src="data/evidence.js"></script>
+  <script src="data/letters.js"></script>
+  <script src="data/tasks.js"></script>
+
+  <!-- 阅读器核心 -->
+  <script>
+  (function() {
+    'use strict';
+
+    // ===== 状态 =====
+    var currentCharId = null;
+    var currentChapterId = null;
+    var currentPanel = null;
+    var chapterReadDone = {};
+
+    // ===== 初始化 =====
+    Settings.init();
+    document.getElementById('versionDisplay').textContent = AppConfig.version;
+
+    var params = new URLSearchParams(location.search);
+    var urlChar = params.get('char');
+    if (urlChar) {
+      currentCharId = urlChar;
+      Storage.set('selected_character', currentCharId);
+    } else {
+      currentCharId = Storage.get('selected_character');
+    }
+
+    if (!currentCharId) {
+      document.getElementById('readerContent').innerHTML =
+        '<div class="text-center" style="padding:3rem 1rem;color:var(--text-muted)">'
+        + '<p>未选择角色</p>'
+        + '<button class="btn btn-primary mt-2" onclick="location.href=\'character.html\'">前往选择</button>'
+        + '</div>';
+      document.getElementById('chapterSwitcher').classList.add('hidden');
+    } else {
+      updateClueBadge();
+      loadCharacter(currentCharId, Storage.get('last_chapter_' + currentCharId));
+    }
+
+    // ===== 加载角色剧本 =====
+    function loadCharacter(charId, targetChapter) {
+      var char = CHARACTERS.find(function(c) { return c.id === charId; });
+      if (!char) {
+        Debug.error('Character not found', { charId: charId });
+        return;
+      }
+
+      document.getElementById('topTitle').textContent = char.name + ' · ' + (AppConfig.name || '剧本杀');
+      var loaded = 0;
+      char.chapters.forEach(function(chId) {
+        var script = document.createElement('script');
+        script.src = 'data/scripts/' + charId + '/' + chId + '.js';
+        script.onload = function() {
+          loaded++;
+          if (loaded === char.chapters.length) onAllChaptersLoaded(char, targetChapter);
+        };
+        script.onerror = function() {
+          Debug.error('Chapter load failed', { charId: charId, chapterId: chId });
+          loaded++;
+          if (loaded === char.chapters.length) onAllChaptersLoaded(char, targetChapter);
+        };
+        document.head.appendChild(script);
+      });
+    }
+
+    function onAllChaptersLoaded(char, targetChapter) {
+      document.getElementById('chapterSwitcher').classList.remove('hidden');
+      var select = document.getElementById('chapterSelect');
+      select.innerHTML = '';
+      char.chapters.forEach(function(chId, idx) {
+        var chapterData = SCRIPT_DATA[char.id] && SCRIPT_DATA[char.id][chId];
+        var isTheater = chId.indexOf('theater') >= 0;
+        var label;
+        if (chapterData) {
+          if (isTheater) {
+            label = chapterData.title + ' · ' + chapterData.subtitle;
+          } else {
+            label = chapterData.title + ' · ' + chapterData.subtitle;
+          }
+        } else {
+          label = isTheater ? '小剧场' : ('第' + (idx + 1) + '章');
+        }
+        var opt = document.createElement('option');
+        opt.value = chId;
+        opt.textContent = label;
+        if (chId === 'chapter_3') opt.disabled = true;
+        select.appendChild(opt);
+      });
+      var startChapter = targetChapter || char.chapters[0];
+      switchChapter(startChapter);
+      updateChapterNav(char);
+      Debug.info('Character loaded', { charId: char.id, chapters: char.chapters.length });
+    }
+
+    // ===== 章节切换 =====
+    function switchChapter(chapterId) {
+      currentChapterId = chapterId;
+      Storage.set('last_chapter_' + currentCharId, chapterId);
+      var chapterData = SCRIPT_DATA[currentCharId] && SCRIPT_DATA[currentCharId][chapterId];
+      if (!chapterData) {
+        document.getElementById('readerContent').innerHTML =
+          '<div class="text-center" style="padding:3rem 1rem;color:var(--text-muted)">章节内容加载失败</div>';
+        return;
+      }
+      renderChapter(chapterData);
+      updateChapterNav(CHARACTERS.find(function(c) { return c.id === currentCharId; }));
+      document.getElementById('chapterSelect').value = chapterId;
+      initChapterTasks();
+      restoreHighlights();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      updateReadProgress();
+      Debug.info('Chapter switched', { chapterId: chapterId });
+    }
+
+    function prevChapter() {
+      var char = CHARACTERS.find(function(c) { return c.id === currentCharId; });
+      if (!char) return;
+      var idx = char.chapters.indexOf(currentChapterId);
+      if (idx > 0) switchChapter(char.chapters[idx - 1]);
+    }
+    function nextChapter() {
+      var char = CHARACTERS.find(function(c) { return c.id === currentCharId; });
+      if (!char) return;
+      var idx = char.chapters.indexOf(currentChapterId);
+      if (idx < char.chapters.length - 1) switchChapter(char.chapters[idx + 1]);
+    }
+    function updateChapterNav(char) {
+      if (!char) return;
+      var idx = char.chapters.indexOf(currentChapterId);
+      document.getElementById('prevChapterBtn').style.visibility = idx > 0 ? 'visible' : 'hidden';
+      var isChapter2 = currentChapterId === 'chapter_2';
+      document.getElementById('nextChapterBtn').style.visibility = (idx < char.chapters.length - 1 && !isChapter2) ? 'visible' : 'hidden';
+    }
+
+    // ===== 渲染章节（连续叙事，无类型标签） =====
+    function renderChapter(chapterData) {
+      var html = '';
+      html += '<h2 class="chapter-title">' + escapeHtml(chapterData.title) + '</h2>';
+      html += '<p class="chapter-subtitle">' + escapeHtml(chapterData.subtitle) + '</p>';
+
+      var textBlockCount = 0;
+      chapterData.sections.forEach(function(sec, idx) {
+        if (sec.type === 'theater') {
+          html += renderTheater(sec);
+          textBlockCount = 0;
+        } else {
+          // 将内容按换行符分割成单独的段落
+          var paragraphs = sec.content.split('\n');
+          paragraphs.forEach(function(para, pIdx) {
+            para = para.trim();
+            if (!para) return; // 跳过空行
+            
+            // 每3-4个叙事段落后插入装饰分隔符
+            if (textBlockCount > 0 && textBlockCount % 4 === 0) {
+              html += '<div class="para-ornament">◆</div>';
+            }
+            html += '<p class="text-block" data-section-id="' + sec.id + '_' + pIdx + '">'
+              + escapeHtml(para)
+                .replace(/&lt;strong&gt;/g, '<strong>').replace(/&lt;\/strong&gt;/g, '</strong>')
+              + '</p>';
+            textBlockCount++;
+          });
+        }
+      });
+
+      html += '<div class="chapter-end">— 本章完 —</div>';
+
+      document.getElementById('readerContent').innerHTML = html;
+      initChapterTasks();
+    }
+
+    function renderTheater(sec) {
+      var h = '';
+      h += '<div class="theater-block" data-section-id="' + sec.id + '">';
+      h += '<div class="theater-glass-shine"></div>';
+      if (sec.theaterTitle) {
+        h += '<div class="theater-title">' + escapeHtml(sec.theaterTitle) + '</div>';
+      }
+      var lines = sec.content.split('\n');
+      lines.forEach(function(line) {
+        line = line.trim();
+        if (!line) return;
+        // 舞台说明 / 旁白（括号包裹或以 * 开头）
+        if (/^[（(＊*]/.test(line) || /^\(/.test(line)) {
+          h += '<div class="theater-stage-dir">' + escapeHtml(line.replace(/^[＊*]\s*/, '')) + '</div>';
+          return;
+        }
+        // 分隔线
+        if (line === '***' || line === '---') {
+          h += '<div class="theater-divider">· · ·</div>';
+          return;
+        }
+        // 角色对话：Name：Text 或 Name: Text
+        var m = line.match(/^(.+?)[：:]\s*(.+)$/);
+        if (m) {
+          var charName = m[1].trim();
+          h += '<div class="theater-line">'
+            + '<span class="char-name c-' + escapeHtml(charName) + '">' + escapeHtml(charName) + '：</span>'
+            + '<span class="char-dialogue">' + escapeHtml(m[2].trim()) + '</span>'
+            + '</div>';
+        } else {
+          h += '<div class="theater-line">' + escapeHtml(line) + '</div>';
+        }
+      });
+      h += '</div>';
+      return h;
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ===== 高亮系统（含取消高亮） =====
+    function restoreHighlights() {
+      var highlights = Favorites.getHighlights(currentCharId, currentChapterId);
+      highlights.forEach(function(h) {
+        var blocks = document.querySelectorAll('.text-block');
+        blocks.forEach(function(block) {
+          if (block.getAttribute('data-section-id') === h.sectionId && block.textContent.indexOf(h.text) >= 0) {
+            block.innerHTML = block.innerHTML.replace(
+              escapeRegex(h.text),
+              '<mark data-hl-id="' + h.id + '" title="点击取消高亮">' + escapeHtml(h.text) + '</mark>'
+            );
+          }
+        });
+      });
+
+      // 绑定高亮点击事件（取消高亮）
+      document.querySelectorAll('.text-block mark').forEach(function(mark) {
+        mark.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var hlId = mark.getAttribute('data-hl-id');
+          if (hlId && confirm('取消此高亮标记？')) {
+            Favorites.removeHighlight(hlId);
+            var parent = mark.parentNode;
+            parent.replaceChild(document.createTextNode(mark.textContent), mark);
+            parent.normalize();
+            updateFavPanel();
+            showToast('已取消高亮');
+          }
+        });
+      });
+    }
+
+    function escapeRegex(str) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    window.highlightSelected = function() {
+      if (!pendingSelection) { showToast('请选中文字后再操作'); return; }
+      var ps = pendingSelection;
+      var text = ps.text;
+      // 检查是否已经高亮
+      var existing = Favorites.getHighlights(currentCharId, currentChapterId);
+      var dup = existing.find(function(h) { return h.text === text && h.sectionId === ps.sectionId; });
+      if (dup) {
+        Favorites.removeHighlight(dup.id);
+        showToast('已取消高亮');
+        restoreHighlights();
+        updateFavPanel();
+        clearPendingSelection();
+        return;
+      }
+      Favorites.addHighlight(text, currentCharId, currentChapterId, ps.sectionId, 0, text.length);
+      try {
+        var sel = window.getSelection();
+        if (sel.rangeCount && sel.toString().trim() === text) {
+          var range = sel.getRangeAt(0);
+          var mark = document.createElement('mark');
+          range.surroundContents(mark);
+        }
+      } catch(e) {
+        Debug.warn('Highlight wrap failed', { error: e.message });
+      }
+      clearPendingSelection();
+      restoreHighlights();
+      updateFavPanel();
+      showToast('已高亮（点击高亮文字可取消）');
+    };
+
+    window.favoriteSelected = function() {
+      if (!pendingSelection) { showToast('请选中文字后再操作'); return; }
+      var ps = pendingSelection;
+      var item = Favorites.add(ps.text, currentCharId, currentChapterId, ps.sectionId, ps.offset);
+      if (item) {
+        updateFavPanel();
+        showToast('已添加到收藏夹');
+      } else {
+        showToast('已在收藏夹中');
+      }
+      clearPendingSelection();
+    };
+
+    function clearAllHighlights() {
+      var highlights = Favorites.getHighlights(currentCharId, currentChapterId);
+      highlights.forEach(function(h) { Favorites.removeHighlight(h.id); });
+      renderChapter(SCRIPT_DATA[currentCharId][currentChapterId]);
+      restoreHighlights();
+      updateFavPanel();
+      showToast('已清除本章所有高亮');
+    }
+
+    // ===== 收藏弹窗 =====
+    var pendingFavorite = null;
+    window.closeFavModal = function() {
+      document.getElementById('favOverlay').classList.remove('show');
+      document.getElementById('favModal').classList.add('hidden');
+      pendingFavorite = null;
+    };
+    window.confirmFavorite = function() {
+      if (!pendingFavorite) return;
+      var item = Favorites.add(pendingFavorite.text, currentCharId, currentChapterId, pendingFavorite.sectionId, pendingFavorite.offset);
+      if (item) {
+        updateFavPanel();
+        showToast('已添加到收藏夹');
+      } else {
+        showToast('已在收藏夹中');
+      }
+      closeFavModal();
+    }
+
+    // ===== 选中文字工具栏 =====
+    var pendingSelection = null;
+    function clearPendingSelection() {
+      pendingSelection = null;
+      hideSelectionToolbar();
+      var sel = window.getSelection();
+      if (sel.rangeCount) sel.removeAllRanges();
+    }
+    function showSelectionToolbar(x, y) {
+      var toolbar = document.getElementById('selectionToolbar');
+      // 强制回流以获取真实宽度
+      var tw = toolbar.offsetWidth || 120;
+      // 水平边界检测
+      var left = x;
+      if (left - tw / 2 < 10) left = tw / 2 + 10;
+      if (left + tw / 2 > window.innerWidth - 10) left = window.innerWidth - tw / 2 - 10;
+      toolbar.style.left = left + 'px';
+      toolbar.style.top = y + 'px';
+      toolbar.classList.add('show');
+    }
+    function hideSelectionToolbar() {
+      document.getElementById('selectionToolbar').classList.remove('show');
+    }
+
+    // ===== 选中文字处理 =====
+    // 立即捕获选区（解决手机上选区被清空的时序问题）
+    function captureSelection() {
+      var sel = window.getSelection();
+      var text = sel.toString().trim();
+      if (!text || text.length < 2) return null;
+      if (!document.getElementById('readerContent').contains(sel.anchorNode)) return null;
+      var range = sel.getRangeAt(0);
+      var block = range.startContainer.parentElement;
+      if (!block || !block.classList.contains('text-block')) {
+        block = range.startContainer.parentElement.closest('.text-block');
+      }
+      return {
+        text: text,
+        sectionId: block ? block.getAttribute('data-section-id') : '',
+        offset: range.startOffset
+      };
+    }
+
+    function onSelection() {
+      var captured = captureSelection();
+      if (captured) {
+        pendingSelection = captured;
+        var sel = window.getSelection();
+        var range = sel.getRangeAt(0);
+        var rects = range.getClientRects();
+        var lastRect = rects.length > 0 ? rects[rects.length - 1] : range.getBoundingClientRect();
+        var x = lastRect.left + lastRect.width / 2;
+        var y = lastRect.bottom + 8;
+        showSelectionToolbar(x, y);
+      } else {
+        hideSelectionToolbar();
+      }
+    }
+
+    document.addEventListener('mouseup', function(e) {
+      if (document.getElementById('readerContent').contains(e.target)) {
+        setTimeout(onSelection, 50);
+      } else if (!document.getElementById('selectionToolbar').contains(e.target)) {
+        setTimeout(function() { hideSelectionToolbar(); }, 150);
+      }
+    });
+    // 移动端：touchstart 时先清除旧状态，touchend 立即捕获
+    document.addEventListener('touchend', function(e) {
+      if (document.getElementById('readerContent').contains(e.target)) {
+        // 先立即捕获（不等延迟，避免选区被清空）
+        var captured = captureSelection();
+        if (captured) {
+          pendingSelection = captured;
+          // 延迟仅用于等浏览器稳定选区 rect
+          setTimeout(function() {
+            if (pendingSelection && pendingSelection.text === captured.text) {
+              onSelection();
+            }
+          }, 80);
+        } else {
+          setTimeout(onSelection, 80);
+        }
+      } else if (!document.getElementById('selectionToolbar').contains(e.target)) {
+        setTimeout(function() { hideSelectionToolbar(); }, 250);
+      }
+    });
+    // Escape 关闭信件浮层
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeLetter();
+        closeMapLightbox();
+      }
+    });
+
+    // ===== 侧滑面板 =====
+    window.openPanel = function(name) {
+      if (currentPanel === name) { closeAllPanels(); return; }
+      closeAllPanels();
+      currentPanel = name;
+      document.getElementById('overlay').classList.add('show');
+      var panelId = 'panel' + name.charAt(0).toUpperCase() + name.slice(1);
+      document.getElementById(panelId).classList.add('open');
+      if (name === 'tasks') updateTaskPanel();
+      if (name === 'clues') updateCluePanel();
+      if (name === 'special') initSpecialPanel();
+      if (name === 'favorites') updateFavPanel();
+    };
+    window.closeAllPanels = function() {
+      document.getElementById('overlay').classList.remove('show');
+      document.querySelectorAll('.slide-panel').forEach(function(p) { p.classList.remove('open'); });
+      currentPanel = null;
+    };
+
+    // ===== 任务面板 =====
+    function initChapterTasks() {
+      var taskDefs = TASK_DEFINITIONS[currentCharId] && TASK_DEFINITIONS[currentCharId][currentChapterId];
+      if (!taskDefs) return;
+      var taskIds = taskDefs.map(function(t) { return t.id; });
+      Tasks.initChapter(currentCharId, currentChapterId, taskIds);
+    }
+    function updateTaskPanel() {
+      var taskDefs = TASK_DEFINITIONS[currentCharId] && TASK_DEFINITIONS[currentCharId][currentChapterId];
+      var states = Tasks.getStates(currentCharId, currentChapterId);
+      var listEl = document.getElementById('taskList');
+      if (!taskDefs || taskDefs.length === 0) {
+        listEl.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:2rem 0">天就要亮了。</p>';
+        return;
+      }
+      var html = '';
+      taskDefs.forEach(function(task, idx) {
+        var state = states[task.id] || 'unlocked'; // 默认解锁
+        var doneClass = state === 'done' ? ' done' : '';
+        var statusText = state === 'done' ? '✓' : '○';
+        html += '<div class="task-item' + doneClass + '" onclick="markTaskDone(\'' + task.id + '\')" style="animation: evidenceSlideIn 0.4s cubic-bezier(0.4,0,0.2,1) ' + (idx * 0.1) + 's both">';
+        html += '<div class="task-status">' + statusText + '</div>';
+        html += '<div class="task-content">';
+        html += '<div class="task-title">' + escapeHtml(task.title) + '</div>';
+        html += '<div class="task-desc">' + escapeHtml(task.desc) + '</div>';
+        html += '</div></div>';
+      });
+      listEl.innerHTML = html;
+    }
+    window.markTaskDone = function(taskId) {
+      Tasks.markDone(currentCharId, currentChapterId, taskId);
+      updateTaskPanel();
+      showToast('任务完成');
+    };
+
+    // ===== 线索面板（搜证系统） =====
+    var currentEvidenceRound = 1;
+    var REVEALED_KEY = 'revealed_evidence';
+    var revealedSet = {};
+
+    function loadRevealed() {
+      var raw = Storage.get(REVEALED_KEY, '');
+      if (raw) {
+        try { revealedSet = JSON.parse(raw); } catch(e) { revealedSet = {}; }
+      }
+    }
+    function saveRevealed(id) {
+      revealedSet[id] = true;
+      Storage.set(REVEALED_KEY, JSON.stringify(revealedSet));
+    }
+    function isRevealed(id) { return !!revealedSet[id]; }
+
+    function initEvidenceTabs() {
+      var tabsEl = document.getElementById('evidenceRoundTabs');
+      if (!EVIDENCE_DATA || !EVIDENCE_DATA.length) {
+        tabsEl.innerHTML = '';
+        return;
+      }
+      var html = '';
+      EVIDENCE_DATA.forEach(function(round, i) {
+        html += '<button class="evidence-tab' + (i === 0 && currentEvidenceRound !== 'map' && currentEvidenceRound !== 'comic' && currentEvidenceRound !== 'diary' ? ' active' : '') + '" onclick="switchEvidenceRound(' + round.round + ')" data-round="' + round.round + '">' + escapeHtml(round.label) + '</button>';
+        // 在搜证3之后插入地图标签
+        if (round.round === 3) {
+          html += '<button class="evidence-tab evidence-tab-map' + (currentEvidenceRound === 'map' ? ' active' : '') + '" onclick="switchEvidenceRound(\'map\')" data-round="map">冰库内部行动路线图</button>';
+        }
+        // 在搜证5之后，仅江宴可见单页漫画
+        if (round.round === 5 && currentCharId === 'jiang_yan') {
+          html += '<button class="evidence-tab evidence-tab-comic' + (currentEvidenceRound === 'comic' ? ' active' : '') + '" onclick="switchEvidenceRound(\'comic\')" data-round="comic">单页漫画</button>';
+        }
+      });
+      // 所有角色都可见：小岳的日记
+      if (XIAOYUE_DIARY && XIAOYUE_DIARY[currentCharId]) {
+        html += '<button class="evidence-tab evidence-tab-diary' + (currentEvidenceRound === 'diary' ? ' active' : '') + '" onclick="switchEvidenceRound(\'diary\')" data-round="diary">小岳的日记</button>';
+      }
+      tabsEl.innerHTML = html;
+    }
+
+    window.switchEvidenceRound = function(round) {
+      currentEvidenceRound = round;
+      var activeTab = null;
+      document.querySelectorAll('.evidence-tab').forEach(function(tab) {
+        var tabRound = tab.getAttribute('data-round');
+        var isActive = false;
+        if (tabRound === 'map' || tabRound === 'comic' || tabRound === 'diary') {
+          isActive = round === tabRound;
+        } else {
+          isActive = parseInt(tabRound) === round;
+        }
+        tab.classList.toggle('active', isActive);
+        if (isActive) activeTab = tab;
+      });
+      // 自动滚动激活的标签到可见区域
+      if (activeTab) {
+        activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+      renderEvidenceCards(round);
+    };
+
+    function renderEvidenceCards(round) {
+      var listEl = document.getElementById('clueList');
+
+      // 地图查看
+      if (round === 'map') {
+        listEl.innerHTML = '<div class="evidence-map-wrap" style="animation: evidenceSlideIn 0.4s cubic-bezier(0.4,0,0.2,1) both">'
+          + '<div class="evidence-map-label">冰库内部行动路线图</div>'
+          + '<div class="evidence-map-container" onclick="openImageLightbox(\'data/assets/案件地图.jpg\')">'
+          + '<img src="data/assets/案件地图.jpg" alt="冰库内部行动路线图" class="evidence-map-img">'
+          + '<div class="evidence-map-hint">点击图片放大查看</div>'
+          + '</div>'
+          + '</div>';
+        return;
+      }
+
+      // 单页漫画（仅江宴可见）
+      if (round === 'comic') {
+        listEl.innerHTML = '<div class="evidence-map-wrap" style="animation: evidenceSlideIn 0.4s cubic-bezier(0.4,0,0.2,1) both">'
+          + '<div class="evidence-map-label">单页漫画</div>'
+          + '<div class="evidence-map-container" onclick="openImageLightbox(\'data/assets/单张漫画.jpg\')">'
+          + '<img src="data/assets/单张漫画.jpg" alt="单页漫画" class="evidence-map-img">'
+          + '<div class="evidence-map-hint">点击图片放大查看</div>'
+          + '</div>'
+          + '</div>';
+        return;
+      }
+
+      // 小岳的日记
+      if (round === 'diary') {
+        var entries = XIAOYUE_DIARY && XIAOYUE_DIARY[currentCharId];
+        if (!entries || !entries.length) {
+          listEl.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:2rem 0">暂无日记。</p>';
+          return;
+        }
+        var diaryHtml = '<div class="diary-wrap">';
+        diaryHtml += '<div class="diary-title">小岳的日记</div>';
+        entries.forEach(function(entry, idx) {
+          diaryHtml += '<div class="diary-entry" style="animation: evidenceSlideIn 0.45s cubic-bezier(0.4,0,0.2,1) ' + (idx * 0.08) + 's both">';
+          diaryHtml += '<div class="diary-date">' + escapeHtml(entry.date) + '　' + escapeHtml(entry.weather) + '</div>';
+          diaryHtml += '<div class="diary-content">' + escapeHtml(entry.content).replace(/\n/g, '<br>') + '</div>';
+          diaryHtml += '</div>';
+        });
+        diaryHtml += '</div>';
+        listEl.innerHTML = diaryHtml;
+        return;
+      }
+
+      var roundData = EVIDENCE_DATA.find(function(r) { return r.round === round; });
+      if (!roundData || !roundData.clues.length) {
+        listEl.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:2rem 0">本轮暂无搜证线索。</p>';
+        return;
+      }
+      var html = '';
+      roundData.clues.forEach(function(clue, idx) {
+        var alreadyRevealed = isRevealed(clue.id);
+        var delay = (idx * 0.04);
+        if (alreadyRevealed) {
+          // 已翻开：静态展示卡片
+          html += '<div class="evidence-card revealed-static" style="animation-delay:' + delay + 's">';
+          html += '<div class="evidence-card-back-static">';
+          html += '<div class="evidence-card-header">';
+          html += '<span class="evidence-char-badge">' + escapeHtml(clue.character) + '</span>';
+          html += '<span class="evidence-label">' + escapeHtml(clue.label) + '</span>';
+          html += '</div>';
+          html += '<div class="evidence-card-body">' + escapeHtml(clue.content).replace(/\n/g, '<br>') + '</div>';
+          html += '</div>';
+          html += '</div>';
+        } else {
+          // 未翻开：3D 翻转卡片
+          html += '<div class="evidence-card" data-eid="' + clue.id + '" style="animation-delay:' + delay + 's" onclick="flipEvidenceCard(this)">';
+          html += '<div class="evidence-card-inner">';
+          html += '<div class="evidence-card-front">';
+          html += '<div class="evidence-card-header">';
+          html += '<span class="evidence-char-badge">' + escapeHtml(clue.character) + '</span>';
+          html += '<span class="evidence-label">' + escapeHtml(clue.label) + '</span>';
+          html += '</div>';
+          html += '<div class="evidence-hint">点击翻开查看线索</div>';
+          html += '</div>';
+          html += '<div class="evidence-card-back">';
+          html += '<div class="evidence-card-header" style="margin-bottom:0.4rem">';
+          html += '<span class="evidence-char-badge">' + escapeHtml(clue.character) + '</span>';
+          html += '<span class="evidence-label">' + escapeHtml(clue.label) + '</span>';
+          html += '</div>';
+          html += '<div class="evidence-card-body">' + escapeHtml(clue.content).replace(/\n/g, '<br>') + '</div>';
+          html += '</div>';
+          html += '</div>';
+          html += '</div>';
+        }
+      });
+      listEl.innerHTML = html;
+    }
+
+    window.flipEvidenceCard = function(cardEl) {
+      var eid = cardEl.getAttribute('data-eid');
+      if (!eid || isRevealed(eid)) return;
+      saveRevealed(eid);
+      cardEl.classList.add('flipped');
+      setTimeout(function() {
+        cardEl.classList.remove('flipped');
+        cardEl.classList.add('revealed');
+        cardEl.removeAttribute('onclick');
+      }, 560);
+    };
+
+    window.openImageLightbox = function(src) {
+      document.getElementById('mapLightboxImg').src = src;
+      document.getElementById('mapLightbox').classList.add('show');
+    };
+    window.closeMapLightbox = function() {
+      document.getElementById('mapLightbox').classList.remove('show');
+    };
+
+    function updateCluePanel() {
+      loadRevealed();
+      // 当前角色非江宴且之前选中漫画标签时，重置为搜证一
+      if (currentEvidenceRound === 'comic' && currentCharId !== 'jiang_yan') {
+        currentEvidenceRound = 1;
+      }
+      // 当前角色无日记数据且之前选中日记标签时，重置为搜证一
+      if (currentEvidenceRound === 'diary' && (!XIAOYUE_DIARY || !XIAOYUE_DIARY[currentCharId])) {
+        currentEvidenceRound = 1;
+      }
+      initEvidenceTabs();
+      renderEvidenceCards(currentEvidenceRound);
+    }
+
+    function updateClueBadge() {
+      var btn = document.getElementById('btnClues');
+      var hasEvidence = EVIDENCE_DATA && EVIDENCE_DATA.length > 0;
+      if (Clues.count > 0 || hasEvidence) btn.classList.add('has-notification');
+      else btn.classList.remove('has-notification');
+    }
+
+    // ===== 收藏/高亮面板 =====
+    function updateFavPanel() {
+      var listEl = document.getElementById('favList');
+      var favs = Favorites.getByCharacter(currentCharId);
+      var highlights = Favorites.getHighlights(currentCharId, currentChapterId);
+      var html = '';
+
+      // 高亮区域
+      if (highlights.length > 0) {
+        html += '<div class="task-section-title">本章高亮 (' + highlights.length + ')</div>';
+        highlights.forEach(function(h) {
+          html += '<div class="highlight-manage-item">';
+          html += '<span class="hl-text">' + escapeHtml(h.text.slice(0, 40)) + (h.text.length > 40 ? '...' : '') + '</span>';
+          html += '<button class="btn btn-sm" style="color:#e85d75;font-size:0.72rem" onclick="removeSingleHighlight(\'' + h.id + '\')">取消</button>';
+          html += '</div>';
+        });
+        html += '<div style="margin-bottom:0.75rem">';
+        html += '<button class="btn btn-danger btn-sm" onclick="clearAllHighlights()">清除本章全部高亮</button>';
+        html += '</div>';
+      }
+
+      // 收藏区域
+      html += '<div class="task-section-title">收藏夹 (' + favs.length + ')</div>';
+      if (favs.length === 0) {
+        html += '<p style="color:var(--text-muted);font-size:0.82rem;padding:0.5rem 0">选中正文文字后点击"收藏"即可添加。</p>';
+      } else {
+        favs.forEach(function(fav) {
+          var chData = SCRIPT_DATA[currentCharId] && SCRIPT_DATA[currentCharId][fav.chapterId];
+          var chTitle = chData ? chData.subtitle : fav.chapterId;
+          html += '<div class="fav-item" onclick="jumpToFavorite(\'' + fav.id + '\')">';
+          html += '<button class="fav-delete" onclick="event.stopPropagation();deleteFavorite(\'' + fav.id + '\')">×</button>';
+          html += '<div class="fav-text">' + escapeHtml(fav.text.slice(0, 90)) + (fav.text.length > 90 ? '...' : '') + '</div>';
+          html += '<div class="fav-meta">' + chTitle + ' · ' + fav.createdAt.slice(0, 10) + '</div>';
+          html += '</div>';
+        });
+      }
+      listEl.innerHTML = html;
+    }
+
+    window.removeSingleHighlight = function(hlId) {
+      Favorites.removeHighlight(hlId);
+      renderChapter(SCRIPT_DATA[currentCharId][currentChapterId]);
+      restoreHighlights();
+      updateFavPanel();
+      showToast('已取消高亮');
+    };
+
+    window.clearAllHighlights = clearAllHighlights;
+
+    window.jumpToFavorite = function(favId) {
+      var fav = Favorites.getAll().find(function(f) { return f.id === favId; });
+      if (!fav) return;
+      closeAllPanels();
+      if (fav.chapterId !== currentChapterId) {
+        switchChapter(fav.chapterId);
+        setTimeout(function() { scrollToSection(fav.sectionId); }, 300);
+      } else {
+        scrollToSection(fav.sectionId);
+      }
+      showToast('已跳转到收藏位置');
+    };
+    window.deleteFavorite = function(favId) {
+      Favorites.remove(favId);
+      updateFavPanel();
+      showToast('已删除');
+    };
+    function scrollToSection(sectionId, query) {
+      var el = document.querySelector('[data-section-id="' + sectionId + '"]');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // 高亮搜索词
+        if (query && el.textContent.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          var escapedQuery = escapeRegex(query);
+          el.innerHTML = el.innerHTML.replace(
+            new RegExp('(' + escapedQuery + ')', 'gi'),
+            '<mark class="search-mark" style="background:rgba(255,235,59,0.5);color:inherit;border-radius:2px;padding:0 2px">$1</mark>'
+          );
+          setTimeout(function() {
+            el.querySelectorAll('mark.search-mark').forEach(function(m) {
+              var parent = m.parentNode;
+              parent.replaceChild(document.createTextNode(m.textContent), m);
+              parent.normalize();
+            });
+            restoreHighlights();
+          }, 3000);
+        } else {
+          el.style.transition = 'background 0.3s';
+          el.style.background = 'var(--highlight-bg)';
+          setTimeout(function() { el.style.background = ''; }, 1800);
+        }
+      }
+    }
+
+    // ===== 搜索 =====
+    var _lastSearchQuery = '';
+    window.doSearch = function() {
+      var query = document.getElementById('searchInput').value.trim();
+      _lastSearchQuery = query;
+      var container = document.getElementById('searchResults');
+      if (!query) {
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem 0">输入关键词搜索所有剧本内容。</p>';
+        return;
+      }
+      if (query.length < 2) {
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem 0">请输入至少2个字符。</p>';
+        return;
+      }
+      var results = Search.execute(query, SCRIPT_DATA, { charFilter: currentCharId });
+      if (results.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem 0">未找到匹配结果。</p>';
+        return;
+      }
+      var html = '<p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.5rem">找到 ' + results.length + ' 条</p>';
+      results.forEach(function(r, idx) {
+        html += '<div class="search-result-item" data-result-idx="' + idx + '">';
+        html += '<div class="result-label">' + escapeHtml(r.chapterTitle) + '</div>';
+        html += '<div>' + escapeHtml(r.context).replace(/\n/g, ' ') + '</div>';
+        html += '</div>';
+      });
+      container.innerHTML = html;
+      // 绑定点击事件
+      container.querySelectorAll('.search-result-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+          var idx = parseInt(this.getAttribute('data-result-idx'));
+          if (idx >= 0 && idx < results.length) {
+            var r = results[idx];
+            jumpToSearchResult(r.chapterId, r.sectionId, _lastSearchQuery);
+          }
+        });
+      });
+    };
+    window.jumpToSearchResult = function(chapterId, sectionId, query) {
+      closeAllPanels();
+      if (chapterId !== currentChapterId) {
+        switchChapter(chapterId);
+        setTimeout(function() { scrollToSection(sectionId, query); }, 300);
+      } else { scrollToSection(sectionId, query); }
+    };
+
+    // ===== 阅读进度 =====
+    function updateReadProgress() {
+      var st = window.scrollY || document.documentElement.scrollTop;
+      var dh = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = dh > 0 ? Math.min(100, (st / dh) * 100) : 0;
+      document.getElementById('readProgress').style.width = pct + '%';
+      var key = currentCharId + '|' + currentChapterId;
+      if (!chapterReadDone[key] && dh > 0 && (dh - st) < AppConfig.readThreshold) {
+        chapterReadDone[key] = true;
+        Tasks.unlockChapter(currentCharId, currentChapterId);
+        updateTaskPanel();
+        showToast('本章已阅读完毕，任务已解锁');
+      }
+    }
+    window.addEventListener('scroll', updateReadProgress, { passive: true });
+
+    // ===== 设置 =====
+    window.setTheme = function(theme) {
+      Settings.theme = theme;
+      document.querySelectorAll('.theme-dot').forEach(function(d) { d.classList.remove('active'); });
+      var dot = document.querySelector('.theme-dot.' + theme);
+      if (dot) dot.classList.add('active');
+      closeAllPanels();
+    };
+    window.setFontSize = function(size) {
+      Settings.fontSize = size;
+      document.querySelectorAll('.font-btn').forEach(function(b) { b.classList.remove('active'); });
+      var sizes = ['small', 'medium', 'large', 'xlarge'];
+      document.querySelectorAll('.font-btn')[sizes.indexOf(size)].classList.add('active');
+    };
+    setTimeout(function() {
+      var s = Settings.getAll();
+      var td = document.querySelector('.theme-dot.' + s.theme);
+      if (td) { document.querySelectorAll('.theme-dot').forEach(function(d) { d.classList.remove('active'); }); td.classList.add('active'); }
+      var sizes = ['small', 'medium', 'large', 'xlarge'];
+      var fbs = document.querySelectorAll('.font-btn');
+      fbs.forEach(function(b) { b.classList.remove('active'); });
+      var si = sizes.indexOf(s.fontSize);
+      if (si >= 0 && fbs[si]) fbs[si].classList.add('active');
+    }, 100);
+
+    // ===== 特殊章节 =====
+    window.unlockSpecial = function() {
+      var input = document.getElementById('specialCodeInput').value.trim();
+      var msgEl = document.getElementById('specialMsg');
+      if (input === '1233') {
+        msgEl.style.color = 'var(--task-done)';
+        msgEl.textContent = '解锁成功';
+        Storage.set('special_unlocked', true);
+        setTimeout(function() {
+          document.getElementById('specialUnlock').classList.add('hidden');
+          document.getElementById('specialOptions').classList.remove('hidden');
+          renderSpecialOptions();
+          msgEl.textContent = '';
+        }, 600);
+      } else {
+        msgEl.style.color = 'var(--clue-tag)';
+        msgEl.textContent = '密码错误，请重试';
+      }
+    };
+
+    function renderSpecialOptions() {
+      var listEl = document.getElementById('specialOptionList');
+      var letter = LETTER_DATA && LETTER_DATA[currentCharId];
+      var jianTaoshu = JIANTAOSHU_DATA && JIANTAOSHU_DATA[currentCharId];
+      var html = '';
+      // 信件选项
+      if (letter) {
+        html += '<button class="special-option-btn letter-option" onclick="openLetter()">';
+        html += '<span class="special-option-icon">';
+        html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+        html += '</span>';
+        html += '<span class="special-option-text">' + escapeHtml(letter.from) + '给' + escapeHtml(letter.to) + '的信</span>';
+        html += '<span class="special-option-arrow">→</span>';
+        html += '</button>';
+      }
+      // 检讨书（仅李平川）
+      if (jianTaoshu) {
+        html += '<button class="special-option-btn jiantao-option" onclick="openJianTaoshu()">';
+        html += '<span class="special-option-icon">';
+        html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>';
+        html += '</span>';
+        html += '<span class="special-option-text">检讨书</span>';
+        html += '<span class="special-option-arrow">→</span>';
+        html += '</button>';
+      }
+      // 周然的画（所有角色）
+      var painting = PAINTING_DATA && PAINTING_DATA[currentCharId];
+      if (painting) {
+        html += '<button class="special-option-btn painting-option" onclick="openPainting()">';
+        html += '<span class="special-option-icon">';
+        html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+        html += '</span>';
+        html += '<span class="special-option-text">' + escapeHtml('周然的画 · ' + painting.title) + '</span>';
+        html += '<span class="special-option-arrow">→</span>';
+        html += '</button>';
+      }
+      // 情书（李平川与江宴）
+      var isLoveLetterChar = currentCharId === 'li_pingchuan' || currentCharId === 'jiang_yan';
+      if (isLoveLetterChar && LOVE_LETTERS && LOVE_LETTERS.length) {
+        LOVE_LETTERS.forEach(function(ll) {
+          html += '<button class="special-option-btn love-letter-option" onclick="openLoveLetter(\'' + ll.id + '\')">';
+          html += '<span class="special-option-icon">';
+          html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+          html += '</span>';
+          html += '<span class="special-option-text">' + escapeHtml(ll.from + '给' + ll.to) + '</span>';
+          html += '<span class="special-option-arrow">→</span>';
+          html += '</button>';
+        });
+      }
+      // 结局（所有在 ENDING_DATA 中的角色）
+      var ending = ENDING_DATA && ENDING_DATA[currentCharId];
+      if (ending) {
+        if (ending.groups && ending.groups.length) {
+          // 多结局组（江宴）：每组一个按钮
+          ending.groups.forEach(function(group) {
+            html += '<button class="special-option-btn ending-option" onclick="openEnding(\'' + group.id + '\')">';
+            html += '<span class="special-option-icon">';
+            html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>';
+            html += '</span>';
+            html += '<span class="special-option-text">' + escapeHtml(group.title) + '</span>';
+            html += '<span class="special-option-arrow">→</span>';
+            html += '</button>';
+          });
+        } else {
+          html += '<button class="special-option-btn ending-option" onclick="openEnding()">';
+          html += '<span class="special-option-icon">';
+          html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>';
+          html += '</span>';
+          html += '<span class="special-option-text">结局</span>';
+          html += '<span class="special-option-arrow">→</span>';
+          html += '</button>';
+        }
+      }
+      // 故事复盘
+      html += '<button class="special-option-btn recap-option" onclick="openRecap()">';
+      html += '<span class="special-option-icon">';
+      html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l2 7l10 5l10-5l-10-5z"/><path d="M2 17l10 5l10-5"/><path d="M2 12l10 5l10-5"/></svg>';
+      html += '</span>';
+      html += '<span class="special-option-text">故事复盘</span>';
+      html += '<span class="special-option-arrow">→</span>';
+      html += '</button>';
+      listEl.innerHTML = html;
+    }
+
+    function initSpecialPanel() {
+      var unlocked = Storage.get('special_unlocked');
+      if (unlocked) {
+        document.getElementById('specialUnlock').classList.add('hidden');
+        document.getElementById('specialOptions').classList.remove('hidden');
+        renderSpecialOptions();
+      } else {
+        document.getElementById('specialUnlock').classList.remove('hidden');
+        document.getElementById('specialOptions').classList.add('hidden');
+      }
+    }
+
+    // ===== 信件阅读 =====
+    window.openLetter = function() {
+      var letter = LETTER_DATA && LETTER_DATA[currentCharId];
+      if (!letter) return;
+      var html = '';
+      html += '<div class="letter-header">';
+      html += '<div class="letter-from">' + escapeHtml(letter.from) + ' · 给 ' + escapeHtml(letter.to) + '</div>';
+      html += '<div class="letter-salutation">' + escapeHtml(letter.salutation) + '，</div>';
+      html += '</div>';
+      html += '<div class="letter-body">';
+      letter.content.forEach(function(para) {
+        html += '<p>' + escapeHtml(para).replace(/\n/g, '<br>') + '</p>';
+      });
+      html += '</div>';
+      html += '<div class="letter-signature">— ' + escapeHtml(letter.signature) + '</div>';
+      document.getElementById('letterPaper').innerHTML = html;
+      document.getElementById('letterOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    };
+    // ===== 情书阅读 =====
+    window.openLoveLetter = function(id) {
+      var letter = LOVE_LETTERS && LOVE_LETTERS.find(function(l) { return l.id === id; });
+      if (!letter) return;
+      var html = '';
+      html += '<div class="letter-header">';
+      html += '<div class="letter-from love-letter-from">' + escapeHtml(letter.from) + ' 给 ' + escapeHtml(letter.to) + '</div>';
+      html += '<div class="letter-salutation">' + escapeHtml(letter.salutation) + '：</div>';
+      html += '</div>';
+      html += '<div class="letter-body">';
+      letter.content.forEach(function(para) {
+        html += '<p>' + escapeHtml(para).replace(/\n/g, '<br>') + '</p>';
+      });
+      html += '</div>';
+      html += '<div class="letter-signature">' + escapeHtml(letter.signature) + '</div>';
+      document.getElementById('letterPaper').innerHTML = html;
+      document.getElementById('letterPaper').classList.remove('jiantao-paper');
+      document.getElementById('letterOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    };
+
+    // ===== 检讨书阅读 =====
+    window.openJianTaoshu = function() {
+      var data = JIANTAOSHU_DATA && JIANTAOSHU_DATA[currentCharId];
+      if (!data) return;
+      var html = '';
+      html += '<div class="jiantao-title">' + escapeHtml(data.title) + '</div>';
+      html += '<div class="jiantao-author">' + escapeHtml(data.author) + '</div>';
+      html += '<div class="jiantao-body">';
+      data.lines.forEach(function(line) {
+        // 首字为藏头，单独包裹
+        var first = line.charAt(0);
+        var rest = line.slice(1);
+        html += '<p class="jiantao-line"><span class="jiantao-first">' + escapeHtml(first) + '</span>' + escapeHtml(rest) + '</p>';
+      });
+      html += '</div>';
+      html += '<div class="jiantao-annotation">' + escapeHtml(data.annotation) + '</div>';
+      document.getElementById('letterPaper').innerHTML = html;
+      document.getElementById('letterPaper').classList.add('jiantao-paper');
+      document.getElementById('letterOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    };
+    // ===== 周然的画 =====
+    window.openPainting = function() {
+      var painting = PAINTING_DATA && PAINTING_DATA[currentCharId];
+      if (!painting) return;
+      var html = '';
+      html += '<div class="painting-wrap">';
+      html += '<div class="painting-label">' + escapeHtml('周然的画 · ' + painting.title) + '</div>';
+      html += '<div class="painting-img-container" onclick="openImageLightbox(\'' + painting.file.replace(/'/g, "\\'") + '\')">';
+      html += '<img src="' + escapeHtml(painting.file) + '" alt="' + escapeHtml(painting.title) + '" class="painting-img">';
+      html += '<div class="evidence-map-hint">点击图片放大查看</div>';
+      html += '</div>';
+      html += '</div>';
+      document.getElementById('letterPaper').innerHTML = html;
+      document.getElementById('letterPaper').classList.remove('jiantao-paper');
+      document.getElementById('letterOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    };
+    // ===== 结局 =====
+    var _currentEndingGroup = null;
+
+    function _getEndingContext() {
+      var ending = ENDING_DATA && ENDING_DATA[currentCharId];
+      if (!ending) return null;
+      if (_currentEndingGroup && ending.groups) {
+        var group = ending.groups.find(function(g) { return g.id === _currentEndingGroup; });
+        return group || ending;
+      }
+      return ending;
+    }
+
+    window.openEnding = function(groupId) {
+      _currentEndingGroup = groupId || null;
+      var ctx = _getEndingContext();
+      if (!ctx) return;
+      if (ctx.choices && ctx.choices.length) {
+        // 有选择 → 渲染选择按钮（可能是第一层，也可能是嵌套）
+        var html = '';
+        html += '<div class="ending-title">' + escapeHtml(ctx.title) + '</div>';
+        html += '<div class="ending-choices">';
+        ctx.choices.forEach(function(choice) {
+          var handler = choice.next ? 'showNextChoices' : 'showEndingContent';
+          html += '<button class="ending-choice-btn" onclick="' + handler + '(\'' + choice.id + '\')">' + escapeHtml(choice.label) + '</button>';
+        });
+        html += '</div>';
+        document.getElementById('letterPaper').innerHTML = html;
+        document.getElementById('letterPaper').classList.remove('jiantao-paper');
+        document.getElementById('letterOverlay').classList.add('show');
+        document.body.style.overflow = 'hidden';
+      } else {
+        // 无选择 → 直接展示结局
+        showEndingContent(null);
+      }
+    };
+
+    // 渲染嵌套的第二层选择
+    window.showNextChoices = function(firstChoiceId) {
+      var ctx = _getEndingContext();
+      if (!ctx || !ctx.choices) return;
+      var firstChoice = ctx.choices.find(function(c) { return c.id === firstChoiceId; });
+      if (!firstChoice || !firstChoice.next) return;
+      var next = firstChoice.next;
+      var html = '';
+      html += '<div class="ending-title">' + escapeHtml(ctx.title) + '</div>';
+      html += '<div class="ending-prompt">' + escapeHtml(next.prompt) + '</div>';
+      html += '<div class="ending-choices">';
+      next.choices.forEach(function(choice) {
+        html += '<button class="ending-choice-btn" onclick="showEndingContent(\'' + firstChoiceId + '|' + choice.id + '\')">' + escapeHtml(choice.label) + '</button>';
+      });
+      html += '</div>';
+      document.getElementById('letterPaper').innerHTML = html;
+      document.getElementById('letterPaper').classList.remove('jiantao-paper');
+      document.getElementById('letterOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.showEndingContent = function(choiceId) {
+      var ctx = _getEndingContext();
+      if (!ctx) return;
+      var content;
+      if (choiceId && ctx.choices) {
+        // 检查是否是嵌套选择（格式: "firstId|secondId"）
+        if (choiceId.indexOf('|') !== -1) {
+          var parts = choiceId.split('|');
+          var firstChoice = ctx.choices.find(function(c) { return c.id === parts[0]; });
+          if (firstChoice && firstChoice.next) {
+            var secondChoice = firstChoice.next.choices.find(function(c) { return c.id === parts[1]; });
+            content = secondChoice ? secondChoice.content : null;
+          }
+        } else {
+          var choice = ctx.choices.find(function(c) { return c.id === choiceId; });
+          content = choice ? choice.content : null;
+        }
+      }
+      if (!content) {
+        content = ctx.content;
+      }
+      if (!content) return;
+      var html = '';
+      html += '<div class="ending-title">' + escapeHtml(ctx.title) + '</div>';
+      html += '<div class="letter-body">';
+      content.forEach(function(para) {
+        html += '<p>' + escapeHtml(para).replace(/\n/g, '<br>') + '</p>';
+      });
+      html += '</div>';
+      document.getElementById('letterPaper').innerHTML = html;
+      document.getElementById('letterPaper').classList.remove('jiantao-paper');
+      document.getElementById('letterOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.openRecap = function() {
+      if (!RECAP_DATA) return;
+      var html = '';
+      html += '<div class="ending-title">' + escapeHtml(RECAP_DATA.title) + '</div>';
+      html += '<div class="letter-body">';
+      RECAP_DATA.content.forEach(function(para) {
+        html += '<p>' + escapeHtml(para).replace(/\n/g, '<br>') + '</p>';
+      });
+      html += '</div>';
+      document.getElementById('letterPaper').innerHTML = html;
+      document.getElementById('letterPaper').classList.remove('jiantao-paper');
+      document.getElementById('letterOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    };
+
+    // closeLetter 同时清理检讨书样式
+    window.closeLetter = function() {
+      document.getElementById('letterPaper').classList.remove('jiantao-paper');
+      document.getElementById('letterOverlay').classList.remove('show');
+      document.body.style.overflow = '';
+    };
+    window.resetAllData = function() {
+      if (confirm('确定要重置所有数据吗？此操作不可撤销。')) {
+        Storage.clearAll();
+        Favorites.getAll().forEach(function(f) { Favorites.remove(f.id); });
+        Favorites.getAllHighlights().forEach(function(h) { Favorites.removeHighlight(h.id); });
+        Clues.reset();
+        Tasks.resetAll();
+        revealedSet = {};
+        Storage.remove(REVEALED_KEY);
+        chapterReadDone = {};
+        showToast('数据已重置');
+        setTimeout(function() { location.reload(); }, 500);
+      }
+    };
+
+    window.goBack = function() { location.href = 'character.html'; };
+
+    // ===== Toast =====
+    function showToast(msg) {
+      var toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toast._tid);
+      toast._tid = setTimeout(function() { toast.classList.remove('show'); }, AppConfig.toastDuration);
+    }
+
+    window.switchChapter = switchChapter;
+    window.prevChapter = prevChapter;
+    window.nextChapter = nextChapter;
+
+    Debug.info('Reader initialized', { charId: currentCharId, version: AppConfig.version });
+  })();
+  </script>
+</body>
+</html>
