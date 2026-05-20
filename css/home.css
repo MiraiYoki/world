@@ -1,0 +1,775 @@
+/*
+ * 致新世界 - 首页 CSS
+ * 圣洁 · 末日 · 堕神 风格
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap');
+
+@font-face {
+  font-family: 'MaShanZheng';
+  src: url('https://fonts.gstatic.com/s/mashanzheng/v12/pxiLypu5cKh7daCzXS-86V4OQ.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --holy-white: #f5f5f0;
+  --holy-dim: #e8e8e0;
+  --holy-gold: #c9a962;
+  --holy-gold-dark: #8b7355;
+  --holy-gray: #4a4a4a;
+  --holy-dark: #1a1a1a;
+  --holy-bg: #f8f8f5;
+}
+
+.home-page {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: 
+    radial-gradient(ellipse 80% 60% at 50% -20%, rgba(201, 169, 98, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 20% 90%, rgba(74, 74, 74, 0.08) 0%, transparent 45%),
+    radial-gradient(ellipse 50% 35% at 85% 70%, rgba(201, 169, 98, 0.08) 0%, transparent 40%),
+    radial-gradient(ellipse 40% 50% at 30% 10%, rgba(255,255,255,0.15) 0%, transparent 50%),
+    linear-gradient(180deg, 
+      #fefdfb 0%, 
+      #f9f8f5 10%, 
+      #f5f4ee 25%, 
+      #efebe3 40%, 
+      #e8e4db 55%, 
+      #dfd9cf 70%, 
+      #d4ccc0 85%, 
+      #c9c0b0 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Serif SC', 'Orbitron', serif, sans-serif;
+}
+
+/* =============== 天空纹理层 =============== */
+.sky-texture {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255,255,255,0.2) 0%, transparent 6%),
+    radial-gradient(circle at 30% 40%, rgba(255,255,255,0.15) 0%, transparent 5%),
+    radial-gradient(circle at 60% 15%, rgba(255,255,255,0.18) 0%, transparent 7%),
+    radial-gradient(circle at 80% 50%, rgba(255,255,255,0.12) 0%, transparent 6%),
+    radial-gradient(circle at 40% 70%, rgba(255,255,255,0.14) 0%, transparent 5%),
+    radial-gradient(circle at 75% 25%, rgba(201,169,98,0.06) 0%, transparent 15%),
+    radial-gradient(circle at 15% 65%, rgba(201,169,98,0.05) 0%, transparent 12%);
+  pointer-events: none;
+}
+
+/* =============== 云层效果 =============== */
+.clouds-container {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cloud {
+  position: absolute;
+  background: radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.15) 50%, transparent 70%);
+  filter: blur(40px);
+  animation: cloud-drift infinite ease-in-out;
+}
+
+.cloud:nth-child(1) {
+  width: 400px;
+  height: 80px;
+  top: 10%;
+  left: -10%;
+  animation-duration: 60s;
+  animation-delay: 0s;
+}
+
+.cloud:nth-child(2) {
+  width: 320px;
+  height: 60px;
+  top: 25%;
+  right: -8%;
+  animation-duration: 55s;
+  animation-delay: -20s;
+}
+
+.cloud:nth-child(3) {
+  width: 360px;
+  height: 70px;
+  top: 15%;
+  left: 30%;
+  animation-duration: 75s;
+  animation-delay: -35s;
+}
+
+.cloud:nth-child(4) {
+  width: 280px;
+  height: 50px;
+  top: 70%;
+  left: 10%;
+  animation-duration: 65s;
+  animation-delay: -15s;
+}
+
+.cloud:nth-child(5) {
+  width: 340px;
+  height: 65px;
+  top: 75%;
+  right: 15%;
+  animation-duration: 70s;
+  animation-delay: -40s;
+}
+
+/* =============== 漂浮尘埃粒子 =============== */
+.dust-container {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.dust {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  animation: dust-float infinite ease-in-out;
+  box-shadow: 0 0 6px rgba(201, 169, 98, 0.6);
+}
+
+.dust:nth-child(1) { left: 10%; animation-duration: 20s; animation-delay: 0s; }
+.dust:nth-child(2) { left: 25%; animation-duration: 25s; animation-delay: -5s; }
+.dust:nth-child(3) { left: 40%; animation-duration: 18s; animation-delay: -10s; }
+.dust:nth-child(4) { left: 55%; animation-duration: 22s; animation-delay: -3s; }
+.dust:nth-child(5) { left: 70%; animation-duration: 28s; animation-delay: -8s; }
+.dust:nth-child(6) { left: 85%; animation-duration: 15s; animation-delay: -12s; }
+.dust:nth-child(7) { left: 15%; animation-duration: 24s; animation-delay: -6s; }
+.dust:nth-child(8) { left: 35%; animation-duration: 21s; animation-delay: -9s; }
+.dust:nth-child(9) { left: 60%; animation-duration: 26s; animation-delay: -4s; }
+.dust:nth-child(10) { left: 80%; animation-duration: 19s; animation-delay: -1s; }
+
+/* =============== 羽毛飘落系统 =============== */
+.feathers-container {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.feather {
+  position: absolute;
+  width: 20px;
+  height: 60px;
+  opacity: 0;
+  animation: feather-fall linear infinite;
+}
+
+.feather-body {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 45% 70% at 50% 50%,
+    rgba(255,255,255,0.98) 0%,
+    rgba(255,255,255,0.7) 40%,
+    rgba(255,255,255,0.2) 70%,
+    rgba(255,255,255,0) 100%
+  );
+  filter: blur(12px);
+}
+
+.feather-stem {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 76%;
+  background: rgba(255,255,255,0.9);
+  filter: blur(2px);
+}
+
+.feather.small .feather-body {
+  filter: blur(9px);
+}
+.feather.small .feather-stem {
+  width: 1px;
+  height: 72%;
+  filter: blur(1.5px);
+}
+
+.feather.medium .feather-body {
+  filter: blur(11px);
+}
+.feather.medium .feather-stem {
+  width: 1px;
+  height: 75%;
+  filter: blur(2px);
+}
+
+.feather.large .feather-body {
+  filter: blur(14px);
+}
+.feather.large .feather-stem {
+  width: 1.5px;
+  height: 78%;
+  filter: blur(2.5px);
+}
+
+.feather:nth-child(1) { left: 3%; animation-duration: 12s; animation-delay: 0s; }
+.feather:nth-child(2) { left: 12%; animation-duration: 14s; animation-delay: -3s; }
+.feather:nth-child(3) { left: 21%; animation-duration: 11s; animation-delay: -6s; }
+.feather:nth-child(4) { left: 30%; animation-duration: 15s; animation-delay: -1s; }
+.feather:nth-child(5) { left: 38%; animation-duration: 13s; animation-delay: -8s; }
+.feather:nth-child(6) { left: 46%; animation-duration: 12s; animation-delay: -4s; }
+.feather:nth-child(7) { left: 54%; animation-duration: 14s; animation-delay: -10s; }
+.feather:nth-child(8) { left: 62%; animation-duration: 11s; animation-delay: -2s; }
+.feather:nth-child(9) { left: 70%; animation-duration: 13s; animation-delay: -7s; }
+.feather:nth-child(10) { left: 78%; animation-duration: 15s; animation-delay: -5s; }
+.feather:nth-child(11) { left: 86%; animation-duration: 12s; animation-delay: -9s; }
+.feather:nth-child(12) { left: 94%; animation-duration: 14s; animation-delay: -11s; }
+
+/* =============== 星光粒子 =============== */
+.stars-container {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(255,255,255,1);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 10px rgba(255,255,255,1),
+    0 0 20px rgba(201,169,98,0.8);
+  animation: star-twinkle 2.5s infinite ease-in-out;
+}
+
+.star:nth-child(1) { left: 10%; top: 15%; animation-delay: 0s; }
+.star:nth-child(2) { left: 20%; top: 25%; animation-delay: -0.3s; }
+.star:nth-child(3) { left: 30%; top: 10%; animation-delay: -0.6s; }
+.star:nth-child(4) { left: 42%; top: 32%; animation-delay: -0.9s; }
+.star:nth-child(5) { left: 54%; top: 18%; animation-delay: -1.2s; }
+.star:nth-child(6) { left: 66%; top: 24%; animation-delay: -1.5s; }
+.star:nth-child(7) { left: 78%; top: 12%; animation-delay: -1.8s; }
+.star:nth-child(8) { left: 88%; top: 28%; animation-delay: -2.1s; }
+.star:nth-child(9) { left: 15%; top: 38%; animation-delay: -0.45s; }
+.star:nth-child(10) { left: 45%; top: 14%; animation-delay: -1.05s; }
+.star:nth-child(11) { left: 60%; top: 35%; animation-delay: -1.65s; }
+.star:nth-child(12) { left: 82%; top: 42%; animation-delay: -0.75s; }
+
+/* =============== 光效射线 =============== */
+.rays-container {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.light-ray {
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  width: 4px;
+  height: 60%;
+  background: linear-gradient(180deg, 
+    rgba(201,169,98,0.4), 
+    rgba(201,169,98,0.2),
+    transparent);
+  transform-origin: top center;
+  animation: ray-pulse 6s infinite ease-in-out;
+  filter: blur(2px);
+}
+
+.light-ray:nth-child(1) { transform: translateX(-50%) rotate(-35deg); animation-delay: 0s; }
+.light-ray:nth-child(2) { transform: translateX(-50%) rotate(-18deg); animation-delay: -0.8s; }
+.light-ray:nth-child(3) { transform: translateX(-50%) rotate(0deg); animation-delay: -1.6s; }
+.light-ray:nth-child(4) { transform: translateX(-50%) rotate(18deg); animation-delay: -2.4s; }
+.light-ray:nth-child(5) { transform: translateX(-50%) rotate(35deg); animation-delay: -3.2s; }
+
+/* =============== 光晕圆环 =============== */
+.rings-container {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.gold-ring {
+  position: absolute;
+  border-radius: 50%;
+  animation: ring-rotate linear infinite, ring-glow 3.5s ease-in-out infinite;
+}
+
+.gold-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(201, 169, 98, 0.25);
+  box-shadow: 
+    0 0 25px rgba(201, 169, 98, 0.4),
+    0 0 50px rgba(201, 169, 98, 0.25),
+    inset 0 0 40px rgba(201, 169, 98, 0.1);
+  animation: ring-glow 3.5s ease-in-out infinite;
+}
+
+.gold-ring::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 169, 98, 0.15);
+  box-shadow: 
+    0 0 15px rgba(201, 169, 98, 0.3),
+    0 0 30px rgba(201, 169, 98, 0.15);
+  animation: ring-glow 3.5s ease-in-out infinite;
+  animation-delay: -1.2s;
+}
+
+.ring-1 {
+  width: 250px;
+  height: 250px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-direction: normal;
+  animation-duration: 30s;
+}
+
+.ring-2 {
+  width: 380px;
+  height: 380px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-direction: reverse;
+  animation-duration: 45s;
+}
+
+.ring-3 {
+  width: 520px;
+  height: 520px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-direction: normal;
+  animation-duration: 60s;
+}
+
+/* =============== 漂浮光斑 =============== */
+.orbs-container {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+}
+
+.light-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.5), rgba(201,169,98,0.2), transparent);
+  filter: blur(50px);
+  animation: orb-float infinite ease-in-out;
+}
+
+.light-orb:nth-child(1) {
+  width: 250px;
+  height: 250px;
+  top: 5%;
+  left: 15%;
+  animation-duration: 18s;
+  animation-delay: 0s;
+}
+
+.light-orb:nth-child(2) {
+  width: 200px;
+  height: 200px;
+  top: 65%;
+  right: 10%;
+  animation-duration: 22s;
+  animation-delay: -6s;
+}
+
+.light-orb:nth-child(3) {
+  width: 160px;
+  height: 160px;
+  bottom: 15%;
+  left: 25%;
+  animation-duration: 25s;
+  animation-delay: -12s;
+}
+
+/* =============== 中心圣光 =============== */
+.holy-light {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(ellipse, 
+    rgba(255,255,255,0.15) 0%, 
+    rgba(201,169,98,0.08) 30%,
+    transparent 70%);
+  filter: blur(40px);
+  animation: holy-pulse 5s ease-in-out infinite;
+  z-index: 8;
+  pointer-events: none;
+}
+
+/* =============== 英雄区域 =============== */
+.hero {
+  position: relative;
+  z-index: 20;
+  text-align: center;
+  padding: 2rem;
+  max-width: 80vw;
+}
+
+.title-glow-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+}
+
+.title-glow {
+  position: absolute;
+  inset: -5rem;
+  background: radial-gradient(circle, 
+    rgba(201, 169, 98, 0.18) 0%, 
+    rgba(201, 169, 98, 0.08) 40%,
+    transparent 75%);
+  filter: blur(70px);
+  animation: pulse-glow 7s infinite ease-in-out;
+  z-index: -1;
+}
+
+.hero-title {
+  font-size: clamp(2.8rem, 10vw, 7.5rem);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  font-family: 'MaShanZheng', 'Ma Shan Zheng', 'Noto Serif SC', serif;
+  margin: 0;
+  color: #1a1a1a;
+  text-shadow: 
+    0 0 50px rgba(201, 169, 98, 0.4),
+    0 0 100px rgba(201, 169, 98, 0.25),
+    0 2px 4px rgba(0,0,0,0.12);
+  position: relative;
+}
+
+@media (max-width: 400px) {
+  .hero-title {
+    font-size: 2.4rem;
+    letter-spacing: 0.05em;
+  }
+}
+
+.hero-title::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 45%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(201, 169, 98, 0.4), 
+    rgba(201, 169, 98, 0.8), 
+    rgba(201, 169, 98, 0.4), 
+    transparent);
+}
+
+.hero-subtitle {
+  font-size: clamp(0.85rem, 2.2vw, 1.2rem);
+  letter-spacing: 0.9em;
+  text-transform: uppercase;
+  color: var(--holy-gray);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 400;
+  margin: 3.5rem 0 1.5rem;
+  position: relative;
+  opacity: 0.8;
+}
+
+.hero-subtitle::before,
+.hero-subtitle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 18%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 169, 98, 0.4), transparent);
+}
+
+.hero-subtitle::before {
+  left: -22%;
+}
+
+.hero-subtitle::after {
+  right: -22%;
+}
+
+.title-line {
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(201, 169, 98, 0.5), rgba(201, 169, 98, 0.7), rgba(201, 169, 98, 0.5), transparent);
+  margin: 2.5rem auto;
+  animation: line-pulse 3.5s infinite ease-in-out;
+}
+
+.hero-tagline {
+  font-size: clamp(0.9rem, 2.2vw, 1.25rem);
+  line-height: 2;
+  color: var(--holy-gray);
+  max-width: 550px;
+  margin: 1.5rem auto 4rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1.1rem 3.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  border: 2px solid rgba(201, 169, 98, 0.5);
+  border-radius: 45px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px);
+  color: var(--holy-dark);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.5s ease;
+  font-family: 'Orbitron', 'Noto Serif SC', sans-serif;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, 
+    rgba(201, 169, 98, 0.2) 0%, 
+    transparent 50%, 
+    rgba(201, 169, 98, 0.2) 100%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.btn:hover {
+  border-color: rgba(201, 169, 98, 0.9);
+  background: rgba(255, 255, 255, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 
+    0 15px 40px rgba(201, 169, 98, 0.25),
+    0 0 35px rgba(201, 169, 98, 0.2),
+    inset 0 0 25px rgba(255, 255, 255, 0.4);
+}
+
+.btn:hover::before {
+  opacity: 1;
+}
+
+.home-footer {
+  position: absolute;
+  bottom: 1.5rem;
+  width: 100%;
+  text-align: center;
+  z-index: 20;
+  color: rgba(74, 74, 74, 0.45);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+}
+
+/* =============== 动画定义 =============== */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.7; transform: translateX(-50%) scale(1.05); }
+}
+
+@keyframes dust-float {
+  0%, 100% { 
+    transform: translateY(0) translateX(0); 
+    opacity: 0.4;
+  }
+  25% { 
+    transform: translateY(-25px) translateX(12px); 
+    opacity: 0.7;
+  }
+  50% { 
+    transform: translateY(-12px) translateX(-6px); 
+    opacity: 0.5;
+  }
+  75% { 
+    transform: translateY(-35px) translateX(8px); 
+    opacity: 0.6;
+  }
+}
+
+@keyframes feather-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(-80px) rotate(0deg) translateX(0);
+  }
+  5% {
+    opacity: 0.9;
+  }
+  25% {
+    transform: translateY(25vh) rotate(80deg) translateX(40px);
+  }
+  50% {
+    transform: translateY(50vh) rotate(180deg) translateX(-30px);
+  }
+  75% {
+    transform: translateY(75vh) rotate(270deg) translateX(20px);
+  }
+  95% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(105vh) rotate(360deg) translateX(-10px);
+  }
+}
+
+@keyframes star-twinkle {
+  0%, 100% { 
+    opacity: 0.25; 
+    transform: scale(0.7); 
+    box-shadow: 0 0 5px rgba(255,255,255,0.6), 0 0 10px rgba(201,169,98,0.4);
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.4); 
+    box-shadow: 0 0 15px rgba(255,255,255,1), 0 0 30px rgba(201,169,98,0.8);
+  }
+}
+
+@keyframes ray-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes ring-rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes ring-glow {
+  0%, 100% { 
+    opacity: 0.5; 
+  }
+  50% { 
+    opacity: 1; 
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.08); }
+}
+
+@keyframes line-pulse {
+  0%, 100% { opacity: 0.3; width: 70px; }
+  50% { opacity: 0.8; width: 130px; }
+}
+
+@keyframes orb-float {
+  0%, 100% { 
+    transform: translate(0, 0) scale(1); 
+    opacity: 0.4;
+  }
+  33% { 
+    transform: translate(25px, -35px) scale(1.15); 
+    opacity: 0.65;
+  }
+  66% { 
+    transform: translate(-18px, 25px) scale(0.85); 
+    opacity: 0.55;
+  }
+}
+
+@keyframes holy-pulse {
+  0%, 100% { 
+    opacity: 0.5; 
+    transform: translate(-50%, -50%) scale(1); 
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: translate(-50%, -50%) scale(1.15); 
+  }
+}
+
+@keyframes cloud-drift {
+  0%, 100% { 
+    transform: translateX(0) translateY(0); 
+    opacity: 0.6;
+  }
+  25% { 
+    transform: translateX(30px) translateY(-15px); 
+    opacity: 0.8;
+  }
+  50% { 
+    transform: translateX(60px) translateY(0); 
+    opacity: 0.7;
+  }
+  75% { 
+    transform: translateX(30px) translateY(15px); 
+    opacity: 0.85;
+  }
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .hero-title {
+    letter-spacing: 0.06em;
+  }
+  
+  .hero-subtitle {
+    letter-spacing: 0.5em;
+  }
+  
+  .hero-subtitle::before {
+    left: -18%;
+    width: 12%;
+  }
+  
+  .hero-subtitle::after {
+    right: -18%;
+    width: 12%;
+  }
+  
+  .ring-1 { width: 180px; height: 180px; }
+  .ring-2 { width: 260px; height: 260px; }
+  .ring-3 { width: 340px; height: 340px; }
+  
+  .light-ray {
+    height: 50%;
+    width: 3px;
+  }
+  
+  .holy-light {
+    width: 250px;
+    height: 250px;
+  }
+}
